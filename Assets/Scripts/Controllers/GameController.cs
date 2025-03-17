@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 
 public class  GameController : MonoBehaviour
@@ -14,6 +15,9 @@ public class  GameController : MonoBehaviour
 
     [Header("Check")]
     public int maxClickCount = 5;
+    public int clickLimit = 0;
+    public GameObject endGame;
+    public TextMeshProUGUI txtEndGame;
 
     private void Awake()
     {
@@ -27,6 +31,9 @@ public class  GameController : MonoBehaviour
     {
         cardList.Init();
         InitCard(maxClickCount);
+        clickLimit = 3 * maxClickCount;
+        endGame.SetActive(false);
+        txtEndGame.gameObject.SetActive(false);
     }
 
     private void OnEnable()
@@ -59,6 +66,7 @@ public class  GameController : MonoBehaviour
                 cardList.lst[cardList.secondClickIndex].isMatched = true;
                 cardList.firstClickIndex = -1;
                 cardList.secondClickIndex = -1;
+                maxClickCount -= 1;
                 //Debug.Log("Matched");
             }
             else
@@ -66,12 +74,33 @@ public class  GameController : MonoBehaviour
                 //Debug.Log("Not Matched" + cardList.firstClickIndex +  cardList.secondClickIndex);
                 SwapAgain(cardList.firstClickIndex, cardList.secondClickIndex);
             }
+            if (clickLimit >= 0 && maxClickCount == 0)
+            {
+                txtEndGame.SetText("You Win!");
+                txtEndGame.gameObject.SetActive(true);
+                endGame.SetActive(true);
+                Debug.Log("Win!");
+            }
+            else if (!CheckMaxClick())
+            {
+                txtEndGame.SetText("You Lose");
+                txtEndGame.gameObject.SetActive(true);
+                endGame.SetActive(true);
+                //cardContainer.gameObject.SetActive(false);
+                Debug.Log("Lose!");
+            }
         }
     }
 
     private bool CheckSame(int idx1, int idx2)
     {
         if (cardList.lst[idx1].id == cardList.lst[idx2].id) return true;
+        return false;
+    }
+
+    private bool CheckMaxClick()
+    {
+        if ((clickLimit - clickCount) > (maxClickCount * 2)) return true;
         return false;
     }
 
